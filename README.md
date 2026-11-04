@@ -1,76 +1,89 @@
 # Classroom Student Behavior Recognition
 
-A research implementation of a two-stream system for detecting students in classroom video and recognizing their behavior over time. The project combines PACR-DETR for spatial person detection with a Video Swin-based Temporal Segment Transformer (TST) for multi-label action classification.
+Research code and trained checkpoints for a two-stream system that detects students in classroom video and recognizes their behavior over time. The spatial branch uses PACR-DETR; the temporal branch uses a Video Swin-based Temporal Segment Transformer (TST) for multi-label action classification.
 
-The accompanying paper, **“Spatiotemporal Framework for Automated Multi-label Student Behavior Recognition in Classrooms,”** describes evaluation on the Student Action Video (SAV) dataset. The paper reports 71.49% multi-label mAP for behavior recognition and 89.14% AP@50 for person detection. These are reported paper results, not results independently reproduced by this repository.
+The accompanying research paper describes evaluation on the Student Action Video (SAV) dataset. It reports **71.49% multi-label mAP** for behavior recognition and **89.14% AP@50** for student detection. These are results reported in the paper and are not an independent reproduction claim for this repository.
 
-## Project contents
+## Repository contents
 
-| File | Description |
+| Path | Description |
 | --- | --- |
-| `Code/pacr-bounding.ipynb` | PACR-DETR person-detection training implementation for SAV bounding boxes. |
-| `Code/TST code.py` | Video Swin/TST model and training implementation, including multi-label losses and evaluation. |
-| `Code/inference.ipynb` | PACR + TST workflow, inference utilities, and a Gradio interface. |
+| `Code/pacr-bounding.ipynb` | PACR-DETR person-detection training workflow for SAV bounding boxes. |
+| `Code/TST code.py` | Video Swin/TST model, training loop, and multi-label evaluation. |
+| `Code/inference.ipynb` | Combined PACR + TST inference workflow and Gradio interface. |
+| `models/pacr_best.pth` | Trained PACR-DETR detection checkpoint. |
+| `models/tst_best.pth` | Trained TST behavior-classification checkpoint. |
 
-The paper PDF and any journal material are intentionally not included in this repository.
+The paper PDF and project journal are not included. Dataset files, credentials, and environment configuration are also excluded.
 
-## Method overview
+## Method
 
-1. **Spatial detection:** PACR-DETR detects student bounding boxes, using position-aware channel residual attention and multi-scale features.
-2. **Temporal recognition:** The TST classifies per-student video segments with 3D shifted-window attention and multi-label outputs.
-3. **Class imbalance:** The implementation includes asymmetric loss, class weighting, and related training strategies for the long-tailed action distribution.
+1. **Student detection:** PACR-DETR uses position-aware channel residual attention and multi-scale features to localize students in crowded classroom scenes.
+2. **Behavior recognition:** TST processes per-student video segments with 3D shifted-window attention to predict multiple actions over time.
+3. **Class imbalance:** The training implementation includes asymmetric loss, class weighting, and related strategies for long-tailed action labels.
 
-The paper describes experiments on 4,324 SAV clips with 15 action classes. The dataset, pretrained weights, and trained checkpoints are not included here; obtain them from their authorized sources and follow their respective terms.
+The paper describes experiments on 4,324 SAV clips across 15 action classes. Dataset access and use are subject to the dataset provider's terms.
 
 ## Requirements
 
-The code uses Python, PyTorch, and the following main libraries:
+The implementation uses Python and the following main packages:
 
-- NumPy, pandas, Pillow
-- SciPy
+- PyTorch and torchvision
+- NumPy, pandas, Pillow, and SciPy
 - einops and tqdm
 - OpenCV (`cv2`)
 - Matplotlib
+- Jupyter/IPython
 - Gradio (for the notebook interface)
-- Jupyter/IPython (for notebooks)
 
-Install a PyTorch/torchvision build appropriate for your operating system and CUDA setup, then install the other packages:
+Install a PyTorch/torchvision build appropriate for your operating system and CUDA setup, then install the remaining packages:
 
 ```bash
-python -m pip install numpy pandas pillow scipy einops tqdm opencv-python matplotlib gradio jupyter
+python -m pip install numpy pandas pillow scipy einops tqdm opencv-python matplotlib jupyter gradio
 ```
 
-## Data and model setup
+## Data and checkpoints
 
-The training and inference code currently contains Kaggle-specific paths. Before running it:
+The notebooks and training script currently use Kaggle-specific example paths. To run the workflows:
 
-1. Make the SAV frames and annotation CSVs available in your environment.
-2. Obtain the PACR detector checkpoint and Video Swin pretrained weights required by the TST workflow.
-3. Update the dataset, annotation, checkpoint, pretrained-weight, and output paths in the relevant notebook or `Config` class.
-4. Ensure the `pacr_detr` implementation referenced by `inference.ipynb` is available at the configured path.
+1. Obtain the SAV video frames and annotation CSVs from an authorized source.
+2. Update the dataset and annotation paths in the relevant notebook or `Config` class.
+3. Update checkpoint and pretrained-weight paths to the files available in your environment.
+4. For the combined inference workflow, make the `pacr_detr` implementation referenced by `Code/inference.ipynb` available and configure its path.
 
-The data and weight paths in the code are examples tied to a Kaggle setup, not portable paths. Do not commit datasets, checkpoints, or credentials to this repository.
+The checkpoints are stored with Git LFS. Install Git LFS before cloning so the checkpoint files are downloaded rather than their small pointer files:
+
+```bash
+git lfs install
+git clone https://github.com/DivyaMaki/classroom-student-behavior-recognition.git
+```
+
+The checkpoints do not include the SAV dataset. Checkpoint compatibility depends on using the corresponding model architecture and configuration.
 
 ## Running
 
 ### PACR-DETR detection
 
-Open `Code/pacr-bounding.ipynb` in Jupyter or Kaggle, update its `Config` paths, and execute the notebook cells to train/evaluate the person detector.
+Open `Code/pacr-bounding.ipynb` in Jupyter or Kaggle, configure its data and output paths, and run the notebook cells to train or evaluate the detector.
 
 ### TST training
 
-Update the paths and training settings in `Config` in `Code/TST code.py`. Its `__main__` block currently leaves the `train(config)` call commented out; enable that call when you are ready to start training:
+Update the paths and training settings in `Config` in `Code/TST code.py`. The `train(config)` call in the script's `__main__` block is commented out by default; enable it when ready to start training:
 
 ```bash
 python "Code/TST code.py"
 ```
 
-Training requires the SAV data and model weights described above. A CUDA-capable GPU is recommended for the video transformer workload.
+Training requires the SAV data and model weights described above. A CUDA-capable GPU is recommended for the video-transformer workload.
 
 ### Inference and interface
 
-Open `Code/inference.ipynb`, configure the data/model paths and `pacr_detr` dependency, then run its cells in order. The notebook includes inference code and a Gradio interface; it is not a standalone command-line application.
+Open `Code/inference.ipynb`, configure the data and model paths, and run its cells in order. The notebook includes inference code and a Gradio interface; it is not a standalone command-line application.
 
 ## Reproducibility and responsible use
 
-The reported metrics depend on the dataset split, pretrained weights, runtime, and configuration. Record those details when reproducing experiments. Classroom video can contain sensitive personal information: use data only with appropriate authorization, protect identities and recordings, and do not use model predictions as the sole basis for consequential decisions about students.
+Results depend on the dataset split, pretrained weights, runtime, and configuration. Record these details when reproducing experiments. Classroom video may contain sensitive personal information: use recordings only with appropriate authorization, protect identities and data, and do not use model predictions as the sole basis for consequential decisions about students.
+
+## License
+
+No license is currently specified. Contact the repository owner before reusing or redistributing the code or checkpoints.
