@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.*
+secrets.*
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local data, outputs, and trained model artifacts
+data/
+datasets/
+outputs/
+checkpoints/
+*.pth
+*.pt
+*.ckpt
+*.onnx
+wandb/
+mlruns/
+
+# Logs and caches
+*.log
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+
+# Local research paper; keep journal/paper documents out of the repository
+/Springer_Nature_Spatiotemporal_Framework.pdf
